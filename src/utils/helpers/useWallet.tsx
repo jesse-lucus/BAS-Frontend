@@ -2,7 +2,7 @@ import {useEffect, useCallback} from 'react'
 import { useWeb3React } from '@web3-react/core';
 
 const useWallet = () => {
-    const {account, library} = useWeb3React();
+    const {library} = useWeb3React();
     console.log(useWeb3React());
 
     const signMessage = useCallback(async () => {
