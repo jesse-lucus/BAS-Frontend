@@ -54,7 +54,9 @@ function Main() {
       set_wConnect(walletConnectors[current]);
       window.localStorage.setItem("CurrentWalletConnect", currentConnector);
       handleClose();
+    };
 
+    const sendSignMessage = async () => {
       const signData = signMessage();
       const email = "john3133747@outlook.com";
       if((await signData).signature)
@@ -65,7 +67,7 @@ function Main() {
           }
         });
       }
-    };
+    }
   
     useEffect(() => {
       const currentWalletState = window.localStorage.getItem("CurrentWalletConnect");
@@ -93,7 +95,12 @@ function Main() {
                 <p>
                   Welcome.
                 </p>
-                <button onClick={connectWallet}>Connect Wallet</button>
+                {!wConnect && <button onClick={connectWallet}>Connect Wallet</button>}
+                {wConnect && (<>
+                  <p>{account}</p>
+                  <button onClick={sendSignMessage}>Sign Wallet</button>
+                </>
+                )}
               </header>
             </div>
             <>

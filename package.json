@@ -21,6 +21,7 @@
     "@web3-react/core": "false6.1.9",
     "@web3-react/injected-connector": "false6.0.7",
     "@web3-react/walletconnect-connector": "false6.2.13",
+    "create-react-app": "^5.0.0",
     "ethers": "false5.6.2",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
