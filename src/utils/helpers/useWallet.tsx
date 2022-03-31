@@ -3,6 +3,7 @@ import { useWeb3React } from '@web3-react/core';
 
 const useWallet = () => {
     const {library} = useWeb3React();
+    console.log(useWeb3React());
 
     const signMessage = useCallback(async () => {
         const msg = "BASWalletSignature";
