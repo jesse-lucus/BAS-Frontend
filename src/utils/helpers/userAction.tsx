@@ -33,8 +33,8 @@ const signIn = async (_email:string, _password:string) => {
             };
             let res = await fetch('http://localhost:8001/api/user/login', requestOptions)
             let userData = await res.json();
-            console.log(userData.success);
-            if(userData.success) return userData;
+            console.log(userData);
+            return userData;
     } catch (error) {
         console.error('Unable to fetch data:', error)
         return false;

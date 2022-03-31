@@ -15,6 +15,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import {userAction} from './utils/helpers/userAction'
 import { useHistory } from 'react-router-dom';
 
+const regexp = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -37,13 +39,24 @@ export default function SignUp() {
     const data = new FormData(event.currentTarget);
     let email = data.get('email')?.toString();
     let password = data.get('password')?.toString();
-    
+    let password2 = data.get('password_confirm')?.toString();
+
+    if(!email?.match(regexp))
+      {window.alert("Email Address is Invalid");return;}
+    if(password)
+      if(password?.length < 6) 
+        {window.alert("Invalid password!"); return;}
+    if(password != password2) 
+      {window.alert("Verify password failed!"); return;}
+
     if(email && password)
     {
       await userAction.registerUser(email, password)?.then(result => {
         if(result.success) {
+          window.alert("Register Success");
           push("/signin"); 
         }
+        else window.alert("Register Failed");
       });
     }
   };
@@ -84,6 +97,17 @@ export default function SignUp() {
                   fullWidth
                   name="password"
                   label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  required
+                  fullWidth
+                  name="password_confirm"
+                  label="Verify Password"
                   type="password"
                   id="password"
                   autoComplete="new-password"

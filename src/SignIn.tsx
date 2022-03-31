@@ -15,6 +15,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useHistory } from 'react-router-dom'
 import { userAction } from './utils/helpers/userAction';
 
+const regexp = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
+
 function Copyright(props: any) {
   return (
     <Typography variant="body2" color="text.secondary" align="center" {...props}>
@@ -41,12 +43,29 @@ export default function SignIn() {
     let password = data.get('password')?.toString();
     console.log(email, password);
 
+    if(!email?.match(regexp))
+      {window.alert("Email Address is Invalid");return;}
+    if(password)
+      if(password?.length < 6) 
+        {window.alert("Invalid password!"); return;}
+
     if(email && password)
       await userAction.signIn(email, password)?.then(result => {
         if(result.success) {
             localStorage.setItem("token", result.token); 
+            if(email) {localStorage.setItem("email", email);}
             push("/main"); 
-
+        }
+        else{
+          if(result.errors)
+          {
+            result.errors.forEach((element: { password: any; user: any; }) => {
+              if(element.password) window.alert("Password Incorrect");
+              else if(element.user) window.alert("User not exist, Please signup first");
+              else window.alert("Login Failed");
+            });
+            
+          }
         }
       });
   };

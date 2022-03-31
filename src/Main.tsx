@@ -22,7 +22,6 @@ function Main() {
 
     const connectWallet = () =>{
         setOpen(true);
-        
     }
 
     const handleClose = () => setOpen(false);
@@ -47,6 +46,7 @@ function Main() {
 
     const walletConnectors = DESKTOP_CONNECTORS;
     const { account, activate } = useWeb3React();
+    
     const handleConnect = async (currentConnector:ConnectorNames) => {
       console.log("wallet", walletConnectors[currentConnector]);
       const current = currentConnector;
@@ -58,14 +58,17 @@ function Main() {
 
     const sendSignMessage = async () => {
       const signData = signMessage();
-      const email = "john3133747@outlook.com";
+      const email = localStorage.getItem("email");
       if((await signData).signature)
       {
-        await userAction.addWallet(email, (await signData).address, (await signData).signature)?.then(result => {
-          if(result.success) {
-              console.log("Successed");
-          }
-        });
+        if(email)
+        {
+          await userAction.addWallet(email, (await signData).address, (await signData).signature)?.then(result => {
+            if(result.success) {
+                console.log("Successed");
+            }
+          });
+        }
       }
     }
   
