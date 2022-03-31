@@ -91,7 +91,7 @@ function Main() {
               <header className="App-header">
                 <img src={logo} className="App-logo" alt="logo" />
                 <p>
-                  We arrived at NASA.
+                  Welcome.
                 </p>
                 <button onClick={connectWallet}>Connect Wallet</button>
               </header>

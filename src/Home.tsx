@@ -10,7 +10,7 @@ const Home = () =>{
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
-          Welcome to NASA
+          Welcome
         </p>
         <Link href="/signin" variant="body2">
             {"Login"}
