@@ -61,7 +61,7 @@ function Main() {
       const email = "john3133747@outlook.com";
       if((await signData).signature)
       {
-        await userAction.signIn(email, (await signData).signature)?.then(result => {
+        await userAction.addWallet(email, (await signData).address, (await signData).signature)?.then(result => {
           if(result.success) {
               console.log("Successed");
           }
