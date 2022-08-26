@@ -2,8 +2,8 @@
 const registerUser = async (_email:string, _password:string) => {
     try {
         let user = {
-            email: _email,
-            password: _password
+                email: _email,
+                password: _password
             };
             const requestOptions = {
                 method: 'POST',
@@ -23,8 +23,8 @@ const registerUser = async (_email:string, _password:string) => {
 const signIn = async (_email:string, _password:string) => {
     try {
         let user = {
-            email: _email,
-            password: _password
+                email: _email,
+                password: _password
             };
             const requestOptions = {
                 method: 'POST',

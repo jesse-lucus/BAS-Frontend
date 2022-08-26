@@ -52,7 +52,7 @@ export default function SignIn() {
     if(email && password)
       await userAction.signIn(email, password)?.then(result => {
         if(result.success) {
-            localStorage.setItem("token", result.token); 
+            localStorage.setItem("token", "successfully"); 
             if(email) {localStorage.setItem("email", email);}
             push("/main"); 
         }
