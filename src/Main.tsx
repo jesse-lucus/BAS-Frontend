@@ -14,75 +14,103 @@ import WalletConnectImg from "./assets/walletConnect.svg";
 import logo from './logo.svg';
 import './App.css';
 
-// import useWallet from './utils/helpers/useWallet';
 import { userAction } from './utils/helpers/userAction';
+import VerifySignatureEVM from './utils/helpers/signWallet';
 
 import useNear from "./hooks/useNear";
+import { sha256 } from "js-sha256";
 
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-// import * as anchor from '@project-serum/anchor';
-
-
+import { getSolanaProvider, PhantomProvider } from "./solana/utils";
 
 function Main() {
-  let token = localStorage.getItem("token");
-  console.log(token);
-
-  const {signIn} = useNear();
-
-  const connectWallet = () =>{
-      setOpen(true);
-  }
-
   const handleClose = () => setOpen(false);
   const [open, setOpen] = useState(false);
-  const [wConnect, set_wConnect] = useState();
-  // const { signMessage } = useWallet()
+  const [provider, setSolanaProvider] = useState<PhantomProvider | undefined>(undefined);
+  const [solanaKey, setSolanaWalletKey] = useState("");
 
   enum ConnectorNames {
-      MetaMask = "injected",
-      WalletConnect = "walletconnect",
-      BinanceWallet = "binance_wallet",
-      TrustWallet = "trustWallet"
+    MetaMask = "injected",
+    WalletConnect = "walletconnect",
+    BinanceWallet = "binance_wallet",
+    TrustWallet = "trustWallet"
   }
-  
-
   const DESKTOP_CONNECTORS: { [connectorName in ConnectorNames]: any } = {
     [ConnectorNames.MetaMask]: injected,
     [ConnectorNames.WalletConnect]: walletConnect,
     [ConnectorNames.BinanceWallet]: binance_wallet,
     [ConnectorNames.TrustWallet]: trustWallet,
   }
-
   const walletConnectors = DESKTOP_CONNECTORS;
-  const { account, activate } = useWeb3React();
+  const { account, activate, library } = useWeb3React();
+  const {signIn, wallet} = useNear();
+  const { signMessageEVM } = VerifySignatureEVM();
+
+  let token = localStorage.getItem("token");
+
+  ///Connect Solana Wallet
+  const connectSolanaWallet = async () => {
+    // @ts-ignore
+    const { solana } = window;
+
+    if (solana) {
+      try {
+        const response = await solana.connect();
+        console.log('wallet account ', response.publicKey.toString());
+        setSolanaWalletKey(response.publicKey.toString());
+      } catch (err) {
+       // { code: 4001, message: 'User rejected the request.' }
+      }
+    }
+  };
   
   const handleConnect = async (currentConnector:ConnectorNames) => {
     console.log("wallet", walletConnectors[currentConnector]);
     const current = currentConnector;
     await activate(walletConnectors[current]);
-    set_wConnect(walletConnectors[current]);
     window.localStorage.setItem("CurrentWalletConnect", currentConnector);
+    console.log(account, library);
     handleClose();
   };
 
-  // const sendSignMessage = async () => {
-  //   const signData = signMessage();
-  //   const email = localStorage.getItem("email");
-  //   if((await signData).signature)
-  //   {
-  //     if(email)
-  //     {
-  //       await userAction.addWallet(email, (await signData).address, (await signData).signature)?.then(result => {
-  //         if(result.success) {
-  //             console.log("Successed");
-  //         }
-  //       });
-  //     }
-  //   }
-  // }
+  const sendSignMessageEVM = async () => {
+    const signData = signMessageEVM(library);
+    const email = localStorage.getItem("email");
+    if((await signData).signature)
+    {
+      if(email)
+      {
+        // await userAction.addWallet(email, (await signData).address, (await signData).signature)?.then(result => {
+        //   if(result.success) {
+        //       console.log("Successed");
+        //   }
+        // });
+      }
+    }
+  }
+
+  const sendSignMessageSolana = async () => {
+    const message_from_backend = 'hello world'
+    if ("solana" in window && provider) {
+      const signResult = provider
+      .signMessage(
+        new TextEncoder().encode(message_from_backend),
+        'utf8'
+      );
+      console.log(signResult);
+    }
+  }
+
+  const sendSignMessageNear =async () => {
+    const message = new Uint8Array(sha256.array("message"));
+    const keypair = await wallet?._keyStore.getKey("mainnet", wallet.getAccountId());
+    if(keypair) {
+      const signature = keypair.sign(message);
+      console.log(signature);
+    }
+  }
 
   useEffect(() => {
+    ///ETH Wallet
     const currentWalletState = window.localStorage.getItem("CurrentWalletConnect");
     if(currentWalletState)
     {
@@ -94,8 +122,11 @@ function Main() {
           activate(walletConnectors[ConnectorNames.BinanceWallet]);
       else if(currentWalletState == "trustWallet")
           activate(walletConnectors[ConnectorNames.TrustWallet]);
-              
     }
+    ///Solana Wallet
+    const provider = getSolanaProvider();
+    if (provider) setSolanaProvider(provider);
+    else setSolanaProvider(undefined);
   }, []);
 
   if(token)
@@ -108,14 +139,36 @@ function Main() {
                   <p>
                     Welcome.
                   </p>
-                  {!wConnect && <button onClick={connectWallet}>Connect ETH Wallet</button>}
-                  {/* {wConnect && (<>
-                    <p>{account}</p>
-                    <button onClick={sendSignMessage}>Sign Wallet</button>
-                  </>
-                  )} */}
-                  <button onClick={signIn}>Connect Near Wallet</button>
-                  <WalletMultiButton style={{height: "40px", background: "darkgray"}}/>
+                  {
+                    account ? 
+                    <>
+                      <button onClick={sendSignMessageEVM}>Sign ETH Wallet</button>
+                      <p>{account}</p>
+                    </> :
+                    <>
+                      <button onClick={() => setOpen(true)}>Connect ETH Wallet</button>
+                    </>
+                  }
+                  {
+                    wallet ? 
+                    <>
+                      <button onClick={sendSignMessageNear}>Sign Near Wallet</button>
+                      <p>{wallet.getAccountId()}</p>
+                    </> :
+                    <>
+                      <button onClick={signIn}>Connect Near Wallet</button>
+                    </>
+                  }
+                  {
+                    solanaKey ? 
+                    <>
+                      <button onClick={sendSignMessageSolana}>Sign Solana Wallet</button>
+                      <p>{solanaKey}</p>
+                    </> :
+                    <>
+                      <button onClick={connectSolanaWallet}>Connect Solana Wallet</button>
+                    </>
+                  }
                 </header>
               </div>
             <>
