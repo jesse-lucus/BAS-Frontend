@@ -1,3 +1,4 @@
+import internal from "stream";
 
 const registerUser = async (_email:string, _password:string) => {
     try {
@@ -41,11 +42,12 @@ const signIn = async (_email:string, _password:string) => {
     }
 }
 
-const addWallet = async (_email:string, _address: string, _signature: string) => {
+const addWallet = async (_email:string, _address: string, _networkId: string,  _signature: string) => {
     try{
         let user = {
             email: _email,
             address: _address,
+            network_id: _networkId,
             signature: _signature,
         };
         console.log("user", user);
