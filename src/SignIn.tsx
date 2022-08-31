@@ -54,7 +54,7 @@ export default function SignIn() {
         if(result.success) {
             localStorage.setItem("token", result.token); 
             if(email) {localStorage.setItem("email", email);}
-            push("/main"); 
+            push("/"); 
         }
         else{
           if(result.errors)

@@ -1,4 +1,5 @@
 import {useState, useEffect} from 'react';
+import { useHistory } from "react-router-dom";
 import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -23,8 +24,11 @@ import { sha256 } from "js-sha256";
 import { getSolanaProvider, PhantomProvider } from "./solana/utils";
 
 function Main() {
+  let history = useHistory();
+
   const handleClose = () => setOpen(false);
   const [open, setOpen] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const [provider, setSolanaProvider] = useState<PhantomProvider | undefined>(undefined);
   const [solanaKey, setSolanaWalletKey] = useState("");
 
@@ -44,8 +48,6 @@ function Main() {
   const { account, activate, library } = useWeb3React();
   const {signIn, wallet} = useNear();
   const { signMessageEVM } = VerifySignatureEVM();
-
-  let token = localStorage.getItem("token");
 
   ///Connect Solana Wallet
   const connectSolanaWallet = async () => {
@@ -127,131 +129,152 @@ function Main() {
     const provider = getSolanaProvider();
     if (provider) setSolanaProvider(provider);
     else setSolanaProvider(undefined);
+
+    let token_ = localStorage.getItem("token");
+    setToken(token_);
   }, []);
 
-  if(token)
-  {
-      return (
-            <>
-              <div className="App">
-                <header className="App-header">
-                  <img src={logo} className="App-logo" alt="logo" />
-                  <p>
-                    Welcome.
-                  </p>
-                  {
-                    account ? 
-                    <>
-                      <button onClick={sendSignMessageEVM}>Sign ETH Wallet</button>
-                      <p>{account}</p>
-                    </> :
-                    <>
-                      <button onClick={() => setOpen(true)}>Connect ETH Wallet</button>
-                    </>
-                  }
-                  {
-                    wallet ? 
-                    <>
-                      <button onClick={sendSignMessageNear}>Sign Near Wallet</button>
-                      <p>{wallet.getAccountId()}</p>
-                    </> :
-                    <>
-                      <button onClick={signIn}>Connect Near Wallet</button>
-                    </>
-                  }
-                  {
-                    solanaKey ? 
-                    <>
-                      <button onClick={sendSignMessageSolana}>Sign Solana Wallet</button>
-                      <p>{solanaKey}</p>
-                    </> :
-                    <>
-                      <button onClick={connectSolanaWallet}>Connect Solana Wallet</button>
-                    </>
-                  }
-                </header>
-              </div>
-            <>
-              <Box maxWidth={"1440px"} width={"100%"} display={"flex"} flexDirection={"column"} alignItems="center" boxSizing={"border-box"} sx={{ px: { xs: "24px", sm: "64px", md: "108px" } }}>
-                <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-                  <ModalBox>
-                    <UpText>Select Wallet</UpText>
-                    <DownText>Connect to the site below with one of our available wallet providers.</DownText>
-                    <ConnectPart>
-                      <ConnectWallet
-                        onClick={() => {
-                          handleConnect(ConnectorNames.MetaMask);
-                        }}
-                      >
-                        <Box display={"flex"} marginLeft={"5%"}>
-                          Metamask
-                        </Box>
-                        <Box display={"flex"} marginRight={"5%"}>
-                          <img src={MetaMaskImg} width={"24px"} height={"24px"} alt="" />
-                        </Box>
-                      </ConnectWallet>
-                      <ConnectWallet
-                        onClick={() => {
-                          handleConnect(ConnectorNames.TrustWallet);
-                        }}
-                      >
-                        <Box display={"flex"} marginLeft={"5%"}>
-                          Coinbase Wallet
-                        </Box>
-                        <Box display={"flex"} marginRight={"5%"}>
-                          <img src={CoinbaseImg} width={"24px"} height={"24px"} alt="" />
-                        </Box>
-                      </ConnectWallet>
-                      <ConnectWallet
-                        onClick={() => {
-                          handleConnect(ConnectorNames.WalletConnect);
-                        }}
-                      >
-                        <Box display={"flex"} marginLeft={"5%"}>
-                          WalletConnect
-                        </Box>
-                        <Box display={"flex"} marginRight={"5%"}>
-                          <img src={WalletConnectImg} width={"24px"} height={"24px"} alt="" />
-                        </Box>
-                      </ConnectWallet>
-                      <ConnectWallet
-                        onClick={() => {
-                          handleConnect(ConnectorNames.MetaMask);
-                        }}
-                      >
-                        <Box display={"flex"} marginLeft={"5%"}>
-                          Coin98
-                        </Box>
-                        <Box display={"flex"} marginRight={"5%"}>
-                          <img src={Coin98Img} width={"24px"} height={"24px"} alt="" />
-                        </Box>
-                      </ConnectWallet>
-                    </ConnectPart>
-                  </ModalBox>
-                </Modal>
-              </Box>
-            </>
+  return(
+    <>
+    {token == "undefined" ? <>
+      {console.log("token", token)}
+      <div style={{"width": "50%"}}>
+        <TextBox1>
+          The future of money is promising.
+        </TextBox1>
+        <TextBox2>
+        <p>Vow
+          <TextBox2_1>®</TextBox2_1>
+          <TextBox2_2>&nbsp;eliminates the cost of refunds and rewards for retailers.
+          </TextBox2_2>
+          </p>
+        </TextBox2>
+        <Link href="/signin" variant="body2">
+            {"Login"}
+        </Link>
+        <Link href="/signup" variant="body2">
+            {"Don't have an account? Sign Up"}
+        </Link>
+      </div>
+      <div style={{"width": "50%", "alignItems": "center", "justifyContent": "flex-end", "display": "flex"}}>
+        <Button1 onClick={() => {
+          history.push('/signup');
+        }}>
+          Login/Signup
+        </Button1>
+      </div>  
+    </> : <>
+      {console.log("token", token)}
+      <div style={{"width": "50%"}}>
+        <TextBox1>
+          The future of money is promising.
+        </TextBox1>
+        <TextBox2>
+          <p>
+            Vow®eliminates the cost of refunds and rewards for retailers.
+          </p>
+        </TextBox2>
+      </div>
+      <div style={{"width": "50%", "alignItems": "center", "justifyContent": "flex-end", "display": "grid"}}>
+        {
+          account ? 
+          <>
+            <Button1 onClick={sendSignMessageEVM}>Sign ETH Wallet</Button1>
+            <p>{account}</p>
+          </> :
+          <>
+            <Button1 onClick={() => setOpen(true)}>Connect ETH Wallet</Button1>
+            <p>Not Connected</p>
           </>
-          
-        );
-  } else{
-      return (
-          <div className="App">
-            <header className="App-header">
-              <img src={logo} className="App-logo" alt="logo" />
-              <p>
-                Please Login first.
-              </p>
-              <Link href="/signin" variant="body2">
-                  {"Login"}
-              </Link>
-              <Link href="/signup" variant="body2">
-                  {"Don't have an account? Sign Up"}
-              </Link>
-            </header>
-          </div>
-        );
-  }
+        }
+        {
+          wallet ? 
+          <>
+            <Button1 onClick={sendSignMessageNear}>Sign Near Wallet</Button1>
+            <p>{wallet.getAccountId()}</p>
+          </> :
+          <>
+            <button onClick={signIn}>Connect Near Wallet</button>
+            <p>Not Connected</p>
+          </>
+        }
+        {
+          solanaKey ? 
+          <>
+            <Button1 onClick={sendSignMessageSolana}>Sign Solana Wallet</Button1>
+            <p>{solanaKey}</p>
+          </> :
+          <>
+            <Button1 onClick={connectSolanaWallet}>Connect Solana Wallet</Button1>
+            <p>Not Connected</p>
+          </>
+        }
+      </div>
+      
+    {/* <>
+      <Box maxWidth={"1440px"} width={"100%"} display={"flex"} flexDirection={"column"} alignItems="center" boxSizing={"border-box"} sx={{ px: { xs: "24px", sm: "64px", md: "108px" } }}>
+        
+      </Box>
+    </> */}
+    <Modal open={open} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
+      <ModalBox>
+        <UpText>Select Wallet</UpText>
+        <DownText>Connect to the site below with one of our available wallet providers.</DownText>
+        <ConnectPart>
+          <ConnectWallet
+            onClick={() => {
+              handleConnect(ConnectorNames.MetaMask);
+            }}
+          >
+            <Box display={"flex"} marginLeft={"5%"}>
+              Metamask
+            </Box>
+            <Box display={"flex"} marginRight={"5%"}>
+              <img src={MetaMaskImg} width={"24px"} height={"24px"} alt="" />
+            </Box>
+          </ConnectWallet>
+          <ConnectWallet
+            onClick={() => {
+              handleConnect(ConnectorNames.TrustWallet);
+            }}
+          >
+            <Box display={"flex"} marginLeft={"5%"}>
+              Coinbase Wallet
+            </Box>
+            <Box display={"flex"} marginRight={"5%"}>
+              <img src={CoinbaseImg} width={"24px"} height={"24px"} alt="" />
+            </Box>
+          </ConnectWallet>
+          <ConnectWallet
+            onClick={() => {
+              handleConnect(ConnectorNames.WalletConnect);
+            }}
+          >
+            <Box display={"flex"} marginLeft={"5%"}>
+              WalletConnect
+            </Box>
+            <Box display={"flex"} marginRight={"5%"}>
+              <img src={WalletConnectImg} width={"24px"} height={"24px"} alt="" />
+            </Box>
+          </ConnectWallet>
+          <ConnectWallet
+            onClick={() => {
+              handleConnect(ConnectorNames.MetaMask);
+            }}
+          >
+            <Box display={"flex"} marginLeft={"5%"}>
+              Coin98
+            </Box>
+            <Box display={"flex"} marginRight={"5%"}>
+              <img src={Coin98Img} width={"24px"} height={"24px"} alt="" />
+            </Box>
+          </ConnectWallet>
+        </ConnectPart>
+      </ModalBox>
+    </Modal>
+    </>}
+    </>
+  )
 }
 
 const ConnectWallet = styled(Box)`
@@ -338,5 +361,73 @@ const ModalBox = styled(Box)`
     }
   }
 `;
+
+const TextBox1 = styled.h3`
+  color: #000000;
+  font-size: 65px;
+  font-weight: 800;
+  line-height: 1em;
+  padding: 0;
+  margin: 0;
+  word-wrap: break-word;
+`
+
+const ElementRow = styled(Box)`
+  width: 100%;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+`
+
+const TextBox2 = styled(Box)`
+  color: #424242;
+  font-size: 19px;
+  font-weight: 400;
+  word-wrap: break-word;
+`
+
+const TextBox2_1 = styled(Box)`
+  color: #202124; 
+  font-size: 14px; 
+  font-variant-ligatures: normal; 
+  orphans: 2; 
+  widows: 2; 
+  text-decoration-thickness: 
+  initial;
+`
+
+const TextBox2_2 = styled(Box)`
+  font-family: var( --e-global-typography-text-font-family ), Sans-serif;
+`
+
+const Button1 = styled(Box)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 56px;
+  font-style: normal;
+  line-height: 17px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  text-transform: uppercase;
+
+  font-size: 20px;
+  font-weight: 500;
+  font-style: normal;
+  letter-spacing: -0.5px;
+  fill: #000000;
+  color: #000000;
+  background-color: #F8D200;
+  border-radius: 5px 5px 5px 5px;
+  padding: 14px 32px 14px 32px;
+
+  color: #FFFFFF;
+  &:hover{
+      transition: .3s;
+      background-color: #512efd;
+  }
+`
 
 export default Main;
